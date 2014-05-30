@@ -9,6 +9,7 @@ import hipi.imagebundle.AbstractImageBundle;
 import hipi.imagebundle.HipiImageBundle;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,7 +33,7 @@ import org.apache.hadoop.mapred.jobcontrol.Job;
 import org.apache.hadoop.mapred.jobcontrol.JobControl;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
-import com.googlecode.javacv.FrameGrabber.ImageMode;
+
 
 public class MasterClass {
 	
@@ -46,26 +47,37 @@ public class MasterClass {
 		Job job = new Job(conf);
 		FileSystem fs = FileSystem.get(conf);
 		Path input = conf.getLocalPath("input");
+		
+		
+		//setting up hipibundle
+		
 		// HipiImageBundle hib = new HipiImageBundle(new Path("/home/hduser/Documents/test1.hib"), conf_new);
 		Path  hipiPath = new Path("/home/hduser/Documents/Softwares/bundle.hib");
 		Configuration conf_new = new Configuration();
 		HipiImageBundle hib = new HipiImageBundle(hipiPath,conf_new) ;
 		hib.open(HipiImageBundle.FILE_MODE_WRITE, true);
-		 FileInputStream file = new FileInputStream("/home/hduser/Pictures/Bhvd_kCIYAER2kQ.jpg");
-		 FloatImage image_f = JPEGImageUtil.getInstance().decodeImage(file);
-		 file.close();
-
+		
+		
+		//adding image
+		FileInputStream file = new FileInputStream("/home/hduser/Pictures/Bhvd_kCIYAER2kQ.jpg");
+		FloatImage image_f = JPEGImageUtil.getInstance().decodeImage(file);
+		 //file.close();
+		 InputStream is = new BufferedInputStream(file);
 		 hib.addImage(image_f);
+		 hib.addImage(is, ImageType.JPEG_IMAGE);
+		 
 	//s	 hib.wait();
 	//	 hib.close();
 
 //		 hib.open(HipiImageBundle.FILE_MODE_READ, true);
-		 System.out.println(hib.getImageCount());
+		
 		 
 	// String[] image_input_path = {"/home/hduser/Pictures/Bhvd_kCIYAER2kQ.jpg","/home/hduser/Pictures/Bhvgf3sIIAASwuz.jpg","/home/hduser/Pictures/Bhvgt8dCQAAzGiK.jpg"};
-		String[] image_input_path = {"/home/hduser/Pictures/test.png"};
-
-			    	
+		String image_input_path = "/home/hduser/Pictures/test.png";
+		File new_file = new File(image_input_path);
+		FileInputStream new_fis = new FileInputStream(new_file);
+		hib.addImage(new_fis, ImageType.PNG_IMAGE);
+		 System.out.println(hib.getImageCount());	    	
 		conf.setOutputKeyClass(Text.class);
 		conf.setOutputValueClass(Text.class);
 
@@ -77,7 +89,8 @@ public class MasterClass {
 	//	FileSystem fs = FileSystem.get(conf);
 		FileInputFormat.setInputPaths(conf, new Path(fs.getHomeDirectory(),"hdfs://localhost:54310/user/hduser/input"));
 		FileOutputFormat.setOutputPath(conf, new Path(fs.getHomeDirectory(),"hdfs://localhost:54310/user/hduser/output1"));
-	
+		hib.close();
+		System.out.println(hib.getImageCount());
 		JobControl jc = new JobControl(null);
 		jc.addJob(job);
 		jc.run();

@@ -83,7 +83,10 @@ public class SiftDocumentBuilder extends AbstractDocumentBuilder {
             for (Iterator<Feature> fit = features.iterator(); fit.hasNext(); ) {
                 Feature f = fit.next();
                 result[count] = new StoredField(DocumentBuilder.FIELD_NAME_SIFT, f.getStringRepresentation());
+                System.out.println("Scale:" + f.scale);
+                
                 count++;
+                
             }
         } catch (IOException e) {
             //logger.severe(e.getMessage());
