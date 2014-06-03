@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Writer;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.FileImageInputStream;
@@ -79,10 +80,10 @@ public static void makeSequenceFileFromHdfs(Configuration conf,FileSystem fs) th
 					FSDataInputStream  in = null;
 					BytesWritable value = new BytesWritable();
 					Text key = new Text();
-					System.out.println(fs.getWorkingDirectory());
-					Path inpath = new Path("hdfs://localhost:54310/user/hduser/input/testingImagesInput");
-					Path seq_path = new Path("seq_path");
-					Path outpath = new Path("output");
+					System.out.println(fs.getHomeDirectory());
+					Path inpath = new Path(fs.getHomeDirectory(),"/user/hduser/input/testingImagesInput/magdalen_000097.jpg");
+					Path seq_path = new Path(fs.getHomeDirectory(),"/user/hduser/seq_path/file.seq");
+					Path outpath = new Path("output/file.seq");
 					
 					SequenceFile.Writer writer = null;
 					try {
@@ -91,13 +92,16 @@ public static void makeSequenceFileFromHdfs(Configuration conf,FileSystem fs) th
 								
 								byte bufffer[] = new  byte[in.available()];
 								in.read(bufffer);
+								System.out.println("Writing to:"+seq_path.toString());
 								writer = SequenceFile.createWriter(fs,conf,seq_path,key.getClass(),value.getClass());
 								writer.append(new Text(inpath.getName()), new BytesWritable(bufffer));
+							
 								System.out.println("inside try!");
 								
 								
 					}catch (Exception e) {
 			            System.out.println("Exception MESSAGES = "+e.getMessage());
+			            e.printStackTrace();
 			        }
 			        finally {
 			            IOUtils.closeStream(writer);
