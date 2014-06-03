@@ -21,18 +21,27 @@ import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.io.IOUtils;
+import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Mapper;
+import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.TextInputFormat;
 import org.apache.hadoop.mapred.jobcontrol.Job;
 import org.apache.hadoop.mapred.jobcontrol.JobControl;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileAsTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
+import com.sun.corba.se.impl.ior.ByteBuffer;
+import com.sun.corba.se.spi.ior.MakeImmutable;
+import org.apache.commons.*;
 
 
 public class MasterClass {
@@ -40,66 +49,60 @@ public class MasterClass {
 	
 	public static void main(String[] args) throws IOException, InterruptedException {
 		// TODO Auto-generated method stub
+
 		
-		//Start of Job1
-		JobConf conf = new JobConf(ImageMapper.class);
-		//conf.set("mapred.jar","/path/to/my/jar/CountRows.jar");`
-		Job job = new Job(conf);
+		Configuration conf = new Configuration();
+		conf.set("fs.default.name","hdfs://localhost:54310");
 		FileSystem fs = FileSystem.get(conf);
-		Path input = conf.getLocalPath("input");
 		
 		
-		//setting up hipibundle
-		
-		// HipiImageBundle hib = new HipiImageBundle(new Path("/home/hduser/Documents/test1.hib"), conf_new);
-		Path  hipiPath = new Path("/home/hduser/Documents/Softwares/bundle.hib");
-		Configuration conf_new = new Configuration();
-		HipiImageBundle hib = new HipiImageBundle(hipiPath,conf_new) ;
-		hib.open(HipiImageBundle.FILE_MODE_WRITE, true);
-		
-		
-		//adding image
-		FileInputStream file = new FileInputStream("/home/hduser/Pictures/Bhvd_kCIYAER2kQ.jpg");
-		FloatImage image_f = JPEGImageUtil.getInstance().decodeImage(file);
-		 //file.close();
-		 InputStream is = new BufferedInputStream(file);
-		 hib.addImage(image_f);
-		 hib.addImage(is, ImageType.JPEG_IMAGE);
-		 
-	//s	 hib.wait();
-	//	 hib.close();
+		org.apache.hadoop.mapreduce.Job job = new org.apache.hadoop.mapreduce.Job(conf);
+		job.setJarByClass(MasterClass.class);
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(Text.class);
+				
+		job.setMapperClass(ImageMapper.class);
+		job.setReducerClass(ImageReducer.class);
+		job.setNumReduceTasks(1);
 
-//		 hib.open(HipiImageBundle.FILE_MODE_READ, true);
-		
-		 
-	// String[] image_input_path = {"/home/hduser/Pictures/Bhvd_kCIYAER2kQ.jpg","/home/hduser/Pictures/Bhvgf3sIIAASwuz.jpg","/home/hduser/Pictures/Bhvgt8dCQAAzGiK.jpg"};
-		String image_input_path = "/home/hduser/Pictures/test.png";
-		File new_file = new File(image_input_path);
-		FileInputStream new_fis = new FileInputStream(new_file);
-		hib.addImage(new_fis, ImageType.PNG_IMAGE);
-		 System.out.println(hib.getImageCount());	    	
-		conf.setOutputKeyClass(Text.class);
-		conf.setOutputValueClass(Text.class);
+	    job.setInputFormatClass(SequenceFileAsTextInputFormat.class);
+	    job.setOutputFormatClass(TextOutputFormat.class);
+	   
+	    org.apache.hadoop.mapreduce.lib.input.FileInputFormat.setInputPaths(job, new Path(fs.getHomeDirectory(),"hdfs://localhost:54310/user/hduser/input"));
+	    org.apache.hadoop.mapreduce.lib.input.FileInputFormat.setInputPaths(job, new Path(fs.getHomeDirectory(),"hdfs://localhost:54310/user/hduser/input"));
 
-		conf.setMapperClass(ImageMapper.class);
-		//conf.setReducerClass(IMageReducer.class);
-		conf.setNumReduceTasks(1);
-
-		conf.setInputFormat(TextInputFormat.class);
-	//	FileSystem fs = FileSystem.get(conf);
-		FileInputFormat.setInputPaths(conf, new Path(fs.getHomeDirectory(),"hdfs://localhost:54310/user/hduser/input"));
-		FileOutputFormat.setOutputPath(conf, new Path(fs.getHomeDirectory(),"hdfs://localhost:54310/user/hduser/output1"));
-		hib.close();
-		System.out.println(hib.getImageCount());
-		JobControl jc = new JobControl(null);
-		jc.addJob(job);
-		jc.run();
-	    job.setMessage("job is runnning...");
-	    Path output_path = new Path(fs.getHomeDirectory(), "hdfs://localhost:54310/user/hduser/output1");
-	    if ( job.isCompleted() && fs.exists(output_path)) {
-	    						fs.delete(output_path, true);
-	    }
-	  
+		makeSequenceFileFromHdfs(conf, fs);
 	}
+	
+public static void makeSequenceFileFromHdfs(Configuration conf,FileSystem fs) throws IOException {
+					
+					FSDataInputStream  in = null;
+					BytesWritable value = new BytesWritable();
+					Text key = new Text();
+					System.out.println(fs.getWorkingDirectory());
+					Path inpath = new Path("hdfs://localhost:54310/user/hduser/input/testingImagesInput");
+					Path seq_path = new Path("seq_path");
+					Path outpath = new Path("output");
+					
+					SequenceFile.Writer writer = null;
+					try {
+								System.out.println("reading from :"+inpath);
+								in =  fs.open(inpath);
+								
+								byte bufffer[] = new  byte[in.available()];
+								in.read(bufffer);
+								writer = SequenceFile.createWriter(fs,conf,seq_path,key.getClass(),value.getClass());
+								writer.append(new Text(inpath.getName()), new BytesWritable(bufffer));
+								System.out.println("inside try!");
+								
+								
+					}catch (Exception e) {
+			            System.out.println("Exception MESSAGES = "+e.getMessage());
+			        }
+			        finally {
+			            IOUtils.closeStream(writer);
+			            System.out.println("last line of the code....!!!!!!!!!!");
+			        }
+}
 
 }
