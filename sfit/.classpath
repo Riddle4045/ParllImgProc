@@ -37,7 +37,6 @@
 	<classpathentry kind="lib" path="/usr/local/hadoop/hadoop-examples-1.0.3.jar"/>
 	<classpathentry kind="lib" path="/usr/local/hadoop/hadoop-minicluster-1.0.3.jar"/>
 	<classpathentry kind="lib" path="/usr/local/hadoop/hadoop-test-1.0.3.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/usr/local/hadoop/hadoop-tools-1.0.3.jar"/>
 	<classpathentry kind="lib" path="/home/ishan/Documents/Softwares/commons-logging-1.1.3/commons-logging-1.1.3.jar"/>
 	<classpathentry kind="lib" path="/home/ishan/Documents/Softwares/commons-logging-1.1.3/commons-logging-1.1.3-javadoc.jar"/>
@@ -92,5 +91,6 @@
 	<classpathentry kind="lib" path="/usr/local/hadoop/lib/slf4j-api-1.4.3.jar"/>
 	<classpathentry kind="lib" path="/usr/local/hadoop/lib/slf4j-log4j12-1.4.3.jar"/>
 	<classpathentry kind="lib" path="/usr/local/hadoop/lib/xmlenc-0.52.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-7-openjdk-amd64"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

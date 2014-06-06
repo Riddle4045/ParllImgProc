@@ -10,6 +10,9 @@ import hipi.imagebundle.HipiImageBundle;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,6 +32,7 @@ import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobConf;
@@ -82,7 +86,7 @@ public static void makeSequenceFileFromHdfs(Configuration conf,FileSystem fs) th
 					Text key = new Text();
 					System.out.println(fs.getHomeDirectory());
 					Path inpath = new Path(fs.getHomeDirectory(),"/user/hduser/input/testingImagesInput/magdalen_000097.jpg");
-					Path seq_path = new Path(fs.getHomeDirectory(),"/user/hduser/seq_path/file.seq");
+					Path seq_path = new Path(fs.getHomeDirectory(),"/user/hduser/output/seq");
 					Path outpath = new Path("output/file.seq");
 					
 					SequenceFile.Writer writer = null;
@@ -105,8 +109,27 @@ public static void makeSequenceFileFromHdfs(Configuration conf,FileSystem fs) th
 			        }
 			        finally {
 			            IOUtils.closeStream(writer);
-			            System.out.println("last line of the code....!!!!!!!!!!");
+			      //      System.out.println("last line of the code....!!!!!!!!!!");
 			        }
+					
+					//once the wrting of the sequence file is done 
+					//we need to read again and convert to buffered image and process and spit out text 
+					convertSequenceFileToImage(conf,fs,seq_path);
 }
 
+public static void convertSequenceFileToImage(Configuration conf,FileSystem fs, Path seq_path ) throws IOException {
+		
+		SequenceFile.Reader reader = new SequenceFile.Reader(fs, seq_path, conf);
+		Text key = new Text();
+		BytesWritable value  = new BytesWritable();
+		reader.next(key, value);
+		byte[] buf = value.getBytes();
+		
+		BufferedImage img = ImageIO.read(new ByteArrayInputStream(buf));
+		ImageIO.write(img,"jpg",new File("/home/hduser/Documents/snap.jpg"));
+				
+
+		
+		
+}
 }
