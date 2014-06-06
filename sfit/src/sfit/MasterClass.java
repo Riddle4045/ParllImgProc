@@ -79,16 +79,24 @@ public class MasterClass {
 		makeSequenceFileFromHdfs(conf, fs);
 	}
 	
+	
+/*
+ * read files from hdfs , convert to sequence file and write back to hdfs
+ * @param:
+ * Configuration : for the hdfs system to write on
+ * FileSystem fs : hdfs filesystem handle.
+ */
 public static void makeSequenceFileFromHdfs(Configuration conf,FileSystem fs) throws IOException {
 					
 					FSDataInputStream  in = null;
 					BytesWritable value = new BytesWritable();
 					Text key = new Text();
-					System.out.println(fs.getHomeDirectory());
+					//targeting a certain image in the hdfs -> input/testingImagesInput folder
+					//TODO: extend this to for a complete hdfs directory.
 					Path inpath = new Path(fs.getHomeDirectory(),"/user/hduser/input/testingImagesInput/magdalen_000097.jpg");
 					Path seq_path = new Path(fs.getHomeDirectory(),"/user/hduser/output/seq");
 					Path outpath = new Path("output/file.seq");
-					
+	
 					SequenceFile.Writer writer = null;
 					try {
 								System.out.println("reading from :"+inpath);
@@ -112,10 +120,19 @@ public static void makeSequenceFileFromHdfs(Configuration conf,FileSystem fs) th
 			      //      System.out.println("last line of the code....!!!!!!!!!!");
 			        }
 					
-					//once the wrting of the sequence file is done 
+					//once the writing of the sequence file is done 
 					//we need to read again and convert to buffered image and process and spit out text 
 					convertSequenceFileToImage(conf,fs,seq_path);
 }
+
+/*
+ * read the sequence file and convert them to buffered images for 
+ * image manipulation
+ * @param : 
+ * conf : configuartion of the filesystem  ( hdfs )
+ * fs : filesystem handle
+ * seq_path : path to the sequence file
+ */
 
 public static void convertSequenceFileToImage(Configuration conf,FileSystem fs, Path seq_path ) throws IOException {
 		
@@ -127,9 +144,17 @@ public static void convertSequenceFileToImage(Configuration conf,FileSystem fs, 
 		
 		BufferedImage img = ImageIO.read(new ByteArrayInputStream(buf));
 		ImageIO.write(img,"jpg",new File("/home/hduser/Documents/snap.jpg"));
-				
+						
+}
 
-		
-		
+/*
+ * This takes the images from a localfile system converts them
+ * to sequence file and writes to the hdfs system
+ * @param : 
+ * Configuration : for the hdfs system to write on
+ * FileSystem fs : hdfs filesystem handle.
+ */
+public static void  makeSequenceFileFromLocalFs(Configuration conf,FileSystem fs) throws IOException {
+	
 }
 }
