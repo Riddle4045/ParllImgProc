@@ -77,6 +77,7 @@ public class MasterClass {
 	    org.apache.hadoop.mapreduce.lib.input.FileInputFormat.setInputPaths(job, new Path(fs.getHomeDirectory(),"hdfs://localhost:54310/user/hduser/input"));
 
 		makeSequenceFileFromHdfs(conf, fs);
+	  //  makeSequenceFileFromLocalFs(conf, fs);
 	}
 	
 	
@@ -139,6 +140,7 @@ public static void convertSequenceFileToImage(Configuration conf,FileSystem fs, 
 		SequenceFile.Reader reader = new SequenceFile.Reader(fs, seq_path, conf);
 		Text key = new Text();
 		BytesWritable value  = new BytesWritable();
+		//TODO : introduce a while condition to iterate over all the keys 
 		reader.next(key, value);
 		byte[] buf = value.getBytes();
 		
@@ -153,8 +155,38 @@ public static void convertSequenceFileToImage(Configuration conf,FileSystem fs, 
  * @param : 
  * Configuration : for the hdfs system to write on
  * FileSystem fs : hdfs filesystem handle.
+ * 
+ * TODO : handle exceptions and add ch
  */
 public static void  makeSequenceFileFromLocalFs(Configuration conf,FileSystem fs) throws IOException {
+			
 	
+			File dir = new File("/home/hduser/Downloads/oxbuild_images");
+			File[] files = dir.listFiles();
+		
+			BytesWritable value = new BytesWritable();
+			Text key = new Text();
+			Path seq_path = new Path(fs.getHomeDirectory(),"/user/hduser/output/seq1");
+			SequenceFile.Writer writer = null;
+			for (File image : files) {
+				try {
+					
+					        FileInputStream  in = new FileInputStream(image);
+							System.out.println("reading from :"+image.getAbsolutePath());
+							byte bufffer[] = new  byte[in.available()];
+							in.read(bufffer);
+							System.out.println("Writing to:"+seq_path.toString());
+							writer = SequenceFile.createWriter(fs,conf,seq_path,key.getClass(),value.getClass());
+							writer.append(new Text(image.getAbsolutePath()), new BytesWritable(bufffer));					
+				}catch (Exception e) {
+		            System.out.println("Exception MESSAGES = "+e.getMessage());
+		            e.printStackTrace();
+		        }
+		        finally {
+		            IOUtils.closeStream(writer);
+		      //      System.out.println("last line of the code....!!!!!!!!!!");
+		        }
+			}
+			
 }
 }
