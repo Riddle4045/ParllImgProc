@@ -52,7 +52,7 @@ import org.apache.commons.*;
 public class MasterClass {
 	
 	
-	public static void main(String[] args) throws IOException, InterruptedException {
+	public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
 		// TODO Auto-generated method stub
 
 		
@@ -73,9 +73,9 @@ public class MasterClass {
 	    job.setInputFormatClass(SequenceFileAsTextInputFormat.class);
 	    job.setOutputFormatClass(TextOutputFormat.class);
 	   
-	    org.apache.hadoop.mapreduce.lib.input.FileInputFormat.setInputPaths(job, new Path(fs.getHomeDirectory(),"hdfs://localhost:54310/user/hduser/input"));
-	    org.apache.hadoop.mapreduce.lib.input.FileInputFormat.setInputPaths(job, new Path(fs.getHomeDirectory(),"hdfs://localhost:54310/user/hduser/input"));
-
+	    org.apache.hadoop.mapreduce.lib.input.FileInputFormat.setInputPaths(job, new Path(fs.getHomeDirectory(),"hdfs://localhost:54310/user/hduser/output/seq"));
+	    org.apache.hadoop.mapreduce.lib.output.FileOutputFormat.setOutputPath(job,new Path(fs.getHomeDirectory(),"hdfs://localhost:54310/user/hduser/output1"));
+	    job.waitForCompletion(true);
 		makeSequenceFileFromHdfs(conf, fs);
 	  //  makeSequenceFileFromLocalFs(conf, fs);
 	}
@@ -108,7 +108,7 @@ public static void makeSequenceFileFromHdfs(Configuration conf,FileSystem fs) th
 								System.out.println("Writing to:"+seq_path.toString());
 								writer = SequenceFile.createWriter(fs,conf,seq_path,key.getClass(),value.getClass());
 								writer.append(new Text(inpath.getName()), new BytesWritable(bufffer));
-							
+								
 								System.out.println("inside try!");
 								
 								
@@ -143,7 +143,7 @@ public static void convertSequenceFileToImage(Configuration conf,FileSystem fs, 
 		//TODO : introduce a while condition to iterate over all the keys 
 		reader.next(key, value);
 		byte[] buf = value.getBytes();
-		
+		System.out.println("Key:"+key);
 		BufferedImage img = ImageIO.read(new ByteArrayInputStream(buf));
 		ImageIO.write(img,"jpg",new File("/home/hduser/Documents/snap.jpg"));
 						
