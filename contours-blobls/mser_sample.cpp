@@ -4,50 +4,68 @@
 #include "opencv2/imgproc/imgproc.hpp"
 
 #include <iostream>
-#include<vector>
-#include<string>
 #include <stdio.h>
 
 using namespace cv;
 using namespace std;
 
-/** code to check the peformance of MSER over several set of images 
- *  the intention to tweak MSER to suit our requirements.
- *
-**/
 
-//static const string = "/home/hduser/Documents/OpenCV-testing Images/Train/Military Tank/images/1f4413b74f2282b02842a55090ceca63.jpg";
-int main ( int argc , char** argv ) 
-	{
-			if (argc != 2 ){
-						cout << "pass two stupid arguments!!\n";
-			return -1 ;
-	}
-	Mat image;
-	image = imread(argv[1] , -1);
-	namedWindow("testimage",WINDOW_AUTOSIZE);
-	imshow("testimage",image);
-	waitKey(0);
-	
-	//lets detect a blob in the image 
-	cv::SimpleBlobDetector::Params params; 
-	params.minDistBetweenBlobs = 10.0;  // minimum 10 pixels between blobs
-	params.filterByArea = true;         // filter my blobs by area of blob
-	params.minArea = 20.0;              // min 20 pixels squared
-	params.maxArea = 500.0;  
-	
-	//after redefining the params , let initialze the detector with them
-	cv::SimpleBlobDetector myBlobDetector(params);
-	vector<keyPoint> blobs;
-	myBlobDetector.detect(image,blobs);
 
-	//lets display  the detected blobs..
-	Mat blob_image;
-	drawKeyPoints(image,blobs,blob_image);
-	namedWindow("blobImage",WINDOW_AUTOSIZE);
-	imshow("blobImage",blob_image);
-	waitKey(0);
+static const Vec3b bcolors[] =
+{
+    Vec3b(0,0,255),
+    Vec3b(0,128,255),
+    Vec3b(0,255,255),
+    Vec3b(0,255,0),
+    Vec3b(255,128,0),
+    Vec3b(255,255,0),
+    Vec3b(255,0,0),
+    Vec3b(255,0,255),
+    Vec3b(255,255,255)
+};
 
-	return 0;
-}
+int main( int argc, char** argv )
+{
+    cout << "enter here";
+    string path;
+    Mat img0, img, yuv, gray, ellipses;
+    if( argc != 2 ) {
+            cout << "\nUsage: mser_sample <path_to_image>\n";
+       	    return 0; 
+    }
+    
+    img0 = imread(argv[1], 1 );
 		
+    cout << "after the if else ";
+    cvtColor(img0, yuv, COLOR_BGR2YCrCb);
+    //cvtColor(img0, gray, COLOR_BGR2GRAY);
+  //  cvtColor(gray, img, COLOR_GRAY2BGR);
+    img0.copyTo(ellipses);
+
+    vector<vector<Point> > contours;
+    MSER()(yuv, contours);
+ cout << "Contors detected";
+
+    // draw mser's with different colors
+    for( int i = (int)contours.size()-1; i >= 0; i-- )
+    {
+        const vector<Point>& r = contours[i];
+        for ( int j = 0; j < (int)r.size(); j++ )
+        {
+            Point pt = r[j];
+            img.at<Vec3b>(pt) = bcolors[i%9];
+        }
+
+        // find ellipse (it seems cvfitellipse2 have error or sth?)
+        RotatedRect box = fitEllipse( r );
+
+        box.angle=(float)CV_PI/2-box.angle;
+        ellipse( ellipses, box, Scalar(196,255,255), 2 );
+    }
+
+    imshow( "original", img0 );
+    imshow( "response", img );
+    imshow( "ellipses", ellipses );
+
+    waitKey(0);
+}
