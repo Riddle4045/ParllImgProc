@@ -10,6 +10,11 @@
 using namespace cv;
 using namespace std;
 
+/**
+ * Author : Ishan Patwa ipatwa@ufl.edu || riddle4045@gmail.com
+ * This code  extracts all the SIFT keypoints and their descriptors over
+ * the Blobls Extracted by MSER
+ */
 
 
 static const Vec3b bcolors[] =
@@ -37,7 +42,7 @@ int main( int argc, char** argv )
 					}else {
 								cout << "we  have the image...\n";
 					}
-					Mat img;
+					Mat img,filtered_img;
 					img0.copyTo(img);
 
 					vector< vector<Point> > msers;
@@ -73,7 +78,22 @@ int main( int argc, char** argv )
 					//TODO : optimize this
 
 					vector<KeyPoint> filtered_keyPoints;
+					for ( int i = 0 ; i < keypoints.size(); i++ ){
 
+						//this is going to be O(n^3) :(
+						for ( int j =0 ; j < msers.size();j++){
+											for ( int k =0 ; k < msers[j].size();k++){
+														if (  msers[j][k].x == (int)(keypoints[i].pt.x) && msers[j][k].y == (int)(keypoints[i].pt.y) ) {
+																		filtered_keyPoints.push_back(keypoints[i]);
+														}
+											}
+						}
+
+					}
+					cout << "Size of Filtered keypoints : " << filtered_keyPoints.size() << endl;
+					drawKeypoints(img,filtered_keyPoints,filtered_img);
+					imshow("filtered_keypoints",filtered_img);
+					waitKey(0);
 					return 0;
 
 }
