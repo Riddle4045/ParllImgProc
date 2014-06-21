@@ -30,6 +30,54 @@ static const Vec3b bcolors[] =
     Vec3b(255,255,255)
 };
 
+static const Vec3b black = Vec3b(0,0,0);
+
+/*
+ * he key points obtained from the SIFT implementation have X Y coordinates
+   right now , we inlucde only those coordinates which are detected as blobls in MSER
+   this gives a filtered set of Coordinates for each image
+   however this operation is very costly
+   TODO : optimize this
+ */
+
+vector<KeyPoint> filterPoints(vector< vector< Point> > msers, vector< KeyPoint> keypoints){
+
+	vector<KeyPoint> filtered_keyPoints;
+	for ( int i = 0 ; i < keypoints.size(); i++ ){
+
+		//this is going to be O(n^3) :(
+		for ( int j =0 ; j < msers.size();j++){
+			for ( int k =0 ; k < msers[j].size();k++){
+				if (  msers[j][k].x == (int)(keypoints[i].pt.x) && msers[j][k].y == (int)(keypoints[i].pt.y) ) {
+					filtered_keyPoints.push_back(keypoints[i]);
+				}
+			}
+		}
+
+	}
+
+	return filtered_keyPoints;
+}
+
+/*
+ * color the blobs obtained from MSER
+ */
+
+void colorMsers(Mat &img0,vector< vector <Point> > msers) {
+
+	//coloring the MSER regions in different colors to distinguish the detected regions
+	for ( int i =0 ; i < msers.size(); i++){
+				for ( int j= 0 ; j < msers[i].size();j++){
+							//cout << "mser[" << i << "]["  <<  j  <<  "]\t" << msers[i][j] << "\n";
+							Point pt =  msers[i][j];
+							img0.at<Vec3b>(pt) = bcolors[i%9];
+				}
+	}
+
+		return ;
+}
+
+
 int main( int argc, char** argv )
 {
 					if ( argc != 2 ){
@@ -44,26 +92,11 @@ int main( int argc, char** argv )
 					}
 					Mat img,filtered_img;
 					img0.copyTo(img);
-
 					vector< vector<Point> > msers;
-
-					//iterators for msers
-					vector< vector<Point> >::iterator mser_rows;
-					vector<Point>::iterator mser_colums;
-
 					MSER()(img0,msers);
 					cout << "extracted " << msers.size() << "  contours\n";
+					//colorMsers(img0,msers);
 
-
-
-					//coloring the MSER regions in different colors to distinguish the detected regions
-					for ( int i =0 ; i < msers.size(); i++){
-								for ( int j= 0 ; j < msers[i].size();j++){
-											//cout << "mser[" << i << "]["  <<  j  <<  "]\t" << msers[i][j] << "\n";
-											Point pt =  msers[i][j];
-											img0.at<Vec3b>(pt) = bcolors[i%9];
-								}
-					}
 
 					//detecting SIFT features
 					cv::SiftFeatureDetector  detector;
@@ -71,26 +104,20 @@ int main( int argc, char** argv )
 					detector.detect(img,keypoints);
 					cout << "number of keypoints detected by SIFT :" << keypoints.size() << endl;
 
-					//the key points obtained from the SIFT implementation have X Y coordinates
-					//right now , we inlucde only those coordinates which are detected as blobls in MSER
-					//this gives a filtered set of Coordinates for each image
-					//however this operation is very costly
-					//TODO : optimize this
-
-					vector<KeyPoint> filtered_keyPoints;
-					for ( int i = 0 ; i < keypoints.size(); i++ ){
-
-						//this is going to be O(n^3) :(
-						for ( int j =0 ; j < msers.size();j++){
-											for ( int k =0 ; k < msers[j].size();k++){
-														if (  msers[j][k].x == (int)(keypoints[i].pt.x) && msers[j][k].y == (int)(keypoints[i].pt.y) ) {
-																		filtered_keyPoints.push_back(keypoints[i]);
-														}
-											}
-						}
-
-					}
+					//naive way to filter points.
+					vector<KeyPoint> filtered_keyPoints = filterPoints(msers,keypoints);
 					cout << "Size of Filtered keypoints : " << filtered_keyPoints.size() << endl;
+
+
+					Mat sift_img;
+					cv::SiftDescriptorExtractor descriptorExtractor;
+					descriptorExtractor.compute(img,filtered_keyPoints,sift_img);
+
+					//printing out all the descriptors
+					for ( int i =0 ; i < sift_img.rows;i++ ){
+									cout << "octabves :" << filtered_keyPoints[i].octave << endl;
+					}
+
 					drawKeypoints(img,filtered_keyPoints,filtered_img);
 					imshow("filtered_keypoints",filtered_img);
 					waitKey(0);
