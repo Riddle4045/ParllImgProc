@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 
 import javax.imageio.ImageIO;
 
@@ -38,7 +39,7 @@ public class MserSiftParallel {
 		
 		public static MSERGrowthHistory[] mser_blobs;
 		public static MSER mser = new MSER();
-		public static List<java.awt.Point> cord_points;  // coordinates of the extracted mser_regions
+		public static List<java.awt.Point> cord_points ;  // coordinates of the extracted mser_regions
 		public static List<ImagePoint> point_list= null; //list of the points extracted from mser_regions
 		
 		
@@ -46,16 +47,11 @@ public class MserSiftParallel {
 		public static List<Feature> sift_features ;
 		public static List<Feature> sift_filtered_features;
 
-		 
-		
-		public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
-			// TODO Auto-generated method stub
-			File file = new File("/home/hduser/Pictures/Tank.jpg");
-			BufferedImage img = ImageIO.read(file);
-			//getSiftOverMser(img);
-			setSIFTfeatures(img);
-			
-		}
+		public   MserSiftParallel() {
+				cord_points =  new Vector<java.awt.Point>();
+				sift_features = new Vector<Feature>();
+				sift_filtered_features = new Vector<Feature>();
+		};
 		
 	/**
 	 * set SIFT features	
@@ -75,10 +71,11 @@ public class MserSiftParallel {
 	 * appending coordinates that are extracted as part of mser_blobs to a list
 	 * @param nser_blobs
 	 */
-	 public static void setMserCoordinates(MSERGrowthHistory[] mser_blobs){
+	 public static void setMserRegions(MSERGrowthHistory[] mser_blobs){
 						for (MSERGrowthHistory mserGrowthHistory : mser_blobs) {
 									point_list = Arrays.asList(mserGrowthHistory.getPoints());
 						}
+						setCoordinatesofMser();
 	}
 	/**
 	 * Utility function to get Cooridnate objects
@@ -103,7 +100,7 @@ public class MserSiftParallel {
 	public static List<Feature> getSiftMserFeatures(BufferedImage img) throws IOException{
 						//obtain SIFT features and MSER blobs
 						setMserRegions(img);
-						setMserCoordinates(mser_blobs);
+						setMserRegions(mser_blobs);
 						setSIFTfeatures(img);
 						
 						//find the intersection of features and include only those in boVW
