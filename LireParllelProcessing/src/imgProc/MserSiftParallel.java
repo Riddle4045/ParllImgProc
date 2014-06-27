@@ -35,13 +35,17 @@ import org.apache.lucene.index.IndexableField;
 public class MserSiftParallel {
 	
 		public static int numFeatures = 0;
+		
 		public static MSERGrowthHistory[] mser_blobs;
 		public static MSER mser = new MSER();
+		public static List<java.awt.Point> cord_points;  // coordinates of the extracted mser_regions
+		public static List<ImagePoint> point_list= null; //list of the points extracted from mser_regions
+		
+		
 		public static Extractor sift_extractor = new Extractor();
 		public static List<Feature> sift_features ;
 		public static List<Feature> sift_filtered_features;
-		public static ImagePoint[] points;  // coordinates of the extracted mser_regions
-		public static List<ImagePoint> point_list= null; //list of the points extracted from mser_regions
+
 		 
 		
 		public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
@@ -76,13 +80,27 @@ public class MserSiftParallel {
 									point_list = Arrays.asList(mserGrowthHistory.getPoints());
 						}
 	}
-	
+	/**
+	 * Utility function to get Cooridnate objects
+	 *  use : retrieveing MSER and SIFT overlap
+	 */
+	public static void setCoordinatesofMser() {
+				if ( point_list.size() == 0 ){
+								System.out.println("get the Mser regions first");
+								
+				} else {
+			 		for (ImagePoint point : point_list) {
+ 						cord_points.add(new java.awt.Point(point.getX(), point.getY()));
+		}
+				}
+
+	 }
 	/** 
 	 * set overlapping MSER and SIFT features
 	 * @param img
 	 * @throws IOException 
 	 */
-	public static void getSiftOverMser(BufferedImage img) throws IOException{
+	public static List<Feature> getSiftMserFeatures(BufferedImage img) throws IOException{
 						//obtain SIFT features and MSER blobs
 						setMserRegions(img);
 						setMserCoordinates(mser_blobs);
@@ -90,6 +108,21 @@ public class MserSiftParallel {
 						
 						//find the intersection of features and include only those in boVW
 						
-
+						try {
+							for (Feature keypoint : sift_features) {
+										java.awt.Point temp = new java.awt.Point();
+										temp.x = Math.round(keypoint.location[0]);
+										temp.y = Math.round(keypoint.location[1]);
+										if ( cord_points.contains(temp)){
+													sift_filtered_features.add(keypoint);
+										}
+							}
+						}catch (Exception e) {
+							// TODO: handle exception
+							e.printStackTrace();
+						}
+					return sift_filtered_features;
+							
 	}
+	
 }
