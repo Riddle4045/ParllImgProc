@@ -13,16 +13,20 @@ import javax.imageio.ImageIO;
 import net.semanticmetadata.lire.imageanalysis.sift.Feature;
 
 import org.aspectj.weaver.patterns.ArgsAnnotationPointcut;
+import org.imgscalr.Scalr;
 
 public class MserSiftFileOperations {
 	
 	
 	
 	//deafult dir_path for the testing set on local system
-	public static String dir_path = "/home/hduser/Dropbox/Disambiguation Project/Tank use case data/ImagNet";
+	//public static String dir_path = "/home/hduser/Dropbox/Disambiguation Project/Tank use case data/ImagNet";
+	public static String dir_path = "/home/hduser/Documents/Kaggle-CFAIR/sample_train_set2";
 	//deafult path where all the descriptors are written.
-	public static String filePath = "/home/hduser/Documents/ParllImgProc/features.txt";
+	public static String filePath = "/home/hduser/Documents/Kaggle-CFAIR/features1.txt";
 	public static MserSiftParallel mserSift = new MserSiftParallel();
+	
+	public static Kmeans kmeans = new Kmeans();
 	
 	/**
 	 * @param args
@@ -75,6 +79,9 @@ public class MserSiftFileOperations {
 		    for (File child : directoryListing) {
 		      // Do something with child
 		    	BufferedImage img = ImageIO.read(child);
+		    	if ( img.getTileHeight() < 64 || img.getTileWidth() < 64  ){
+		    				img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 100, null);
+		    	}
 		    	System.out.println("fetching features for "+child.getAbsolutePath());
 		    	List<Feature> temp_features = mserSift.getSiftMserFeatures(img);
 		    	System.out.println("Writing the file "+child.getAbsolutePath());
@@ -87,6 +94,7 @@ public class MserSiftFileOperations {
 		    // directories.
 			  System.out.println("Some wrong entry in directory check");
 		  }
+		  clusterGatheredFeatures();
 	}
 	
 	/**
@@ -104,10 +112,19 @@ public class MserSiftFileOperations {
 		FileOutputStream fs = new FileOutputStream(file, true);
 		FileWriter fw = new FileWriter(file);
 		for (Feature feature : sift_features) {
-			//	System.out.println(feature.toString());
+				//System.out.println(feature.toString());
 				String str = feature.toString();
 				fw.write(feature.toString());
 		}
 		fs.close();
+		fw.close();
+	}
+	
+	
+	public static void clusterGatheredFeatures() throws IOException{
+		 System.out.println("Clustering features");
+		   File file = new File(filePath);
+			kmeans.addAllImages(file);
+			return;
 	}
 }

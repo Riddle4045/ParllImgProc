@@ -58,6 +58,7 @@ public class MserSiftParallel {
 	 */
 	public static void  setSIFTfeatures(BufferedImage img) throws IOException {
 				sift_features = sift_extractor.computeSiftFeatures(img);
+				
 		}
 	
 	/**
@@ -102,9 +103,8 @@ public class MserSiftParallel {
 						setMserRegions(img);
 						setMserRegions(mser_blobs);
 						setSIFTfeatures(img);
-						
+					
 						//find the intersection of features and include only those in boVW
-						
 						try {
 							for (Feature keypoint : sift_features) {
 										java.awt.Point temp = new java.awt.Point();
@@ -118,6 +118,7 @@ public class MserSiftParallel {
 							// TODO: handle exception
 							e.printStackTrace();
 						}
+					
 					return sift_filtered_features;
 							
 	}
