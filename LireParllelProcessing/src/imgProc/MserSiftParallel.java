@@ -107,6 +107,7 @@ public class MserSiftParallel {
 						//find the intersection of features and include only those in boVW
 						try {
 							for (Feature keypoint : sift_features) {
+								
 										java.awt.Point temp = new java.awt.Point();
 										temp.x = Math.round(keypoint.location[0]);
 										temp.y = Math.round(keypoint.location[1]);
