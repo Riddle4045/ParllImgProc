@@ -1,22 +1,19 @@
 package imgProc;
 
-import java.io.BufferedReader;
+
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
-import org.apache.commons.math3.analysis.function.Abs;
-import org.apache.jasper.tagplugins.jstl.core.ForEach;
 
-import com.sun.org.apache.bcel.internal.generic.NEW;
+
+
+
 
 import net.semanticmetadata.lire.clustering.Cluster;
 import net.semanticmetadata.lire.clustering.KMeans;
-import net.semanticmetadata.lire.imageanalysis.sift.Feature;
+
 
 
 /***
@@ -30,8 +27,8 @@ import net.semanticmetadata.lire.imageanalysis.sift.Feature;
 
 public class KmeansClustering {
 	
-	public static  int NUM_CLUSTERS = 6;
-	private  double threshold = 1;
+	public static  int NUM_CLUSTERS = 100;
+	private  double threshold = 5;
 	private  KMeans kmeans = new KMeans();
 
 	
@@ -70,8 +67,9 @@ public class KmeansClustering {
 	
 	/***
 	 * Computes the clusters on the given set of features
+	 * @throws IOException 
 	 */
-	public void computeClusters(){
+	public void computeClusters() throws IOException{
 			//from the features compue the clusters 
 		setNumberOfClusters(NUM_CLUSTERS);
 		System.out.println("Computing Clusters");
@@ -86,13 +84,7 @@ public class KmeansClustering {
 		System.out.println("finsihed");
 	
 	Cluster[] clusters = kmeans.getClusters();
-	
-	for (Cluster cluster : clusters) {
-		System.out.println(cluster.toString());
-	}
-
-	
-	
+		
 	
 	}
 	

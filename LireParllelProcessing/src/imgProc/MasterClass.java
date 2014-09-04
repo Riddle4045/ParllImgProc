@@ -1,12 +1,5 @@
 package imgProc;
 
-import hipi.image.FloatImage;
-import hipi.image.ImageHeader;
-import hipi.image.ImageHeader.ImageType;
-import hipi.image.io.ImageEncoder;
-import hipi.image.io.JPEGImageUtil;
-import hipi.imagebundle.AbstractImageBundle;
-import hipi.imagebundle.HipiImageBundle;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
@@ -66,8 +59,7 @@ public class MasterClass {
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
 				
-		job.setMapperClass(ImageMapper.class);
-		job.setReducerClass(ImageReducer.class);
+
 		job.setNumReduceTasks(1);
 
 	    job.setInputFormatClass(SequenceFileAsTextInputFormat.class);

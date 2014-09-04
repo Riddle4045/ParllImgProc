@@ -17,8 +17,8 @@ import javax.imageio.ImageIO;
 import net.semanticmetadata.lire.clustering.KMeans;
 import net.semanticmetadata.lire.imageanalysis.sift.Feature;
 
-import org.apache.jasper.tagplugins.jstl.core.Out;
-import org.aspectj.weaver.patterns.ArgsAnnotationPointcut;
+
+
 import org.imgscalr.Scalr;
 
 public class MserSiftFeatureOperations {
@@ -27,9 +27,9 @@ public class MserSiftFeatureOperations {
 	
 	//deafult dir_path for the testing set on local system
 	//public static String dir_path = "/home/hduser/Dropbox/Disambiguation Project/Tank use case data/ImagNet";
-	public static String dir_path = "/home/hduser/Documents/Kaggle-CFAIR/sample_train_set2";
+	public static String dir_path = "/Users/Ishan/Documents/Pictures/ImagePro/TrainSet/";
 	//deafult path where all the descriptors are written.
-	public static String filePath = "/home/hduser/Documents/Kaggle-CFAIR/mserSiftFeatures.txt";
+	public static String filePath = "/Users/Ishan/Documents/mserSiftFeatures.txt";
 	//handle for the mserSiftParallel class , that does all the operations
 	public static MserSiftParallel mserSift = new MserSiftParallel();
 	//handle for Clustering Class kmeansClustering
@@ -85,10 +85,11 @@ public class MserSiftFeatureOperations {
 		
 		  File dir = new File(dir_path);
 		  File[] directoryListing = dir.listFiles();
+		  System.out.println("directory size:"+directoryListing.length);
 		  if (directoryListing != null) {
 		    for (File child : directoryListing) {
 		      // Do something with child
-		    	BufferedImage img = ImageIO.read(child);
+		    	 BufferedImage img = ImageIO.read(child);
 		    	
 		    	//in case we are dealing with thumbnails 
 		    	//scaling will not and should not affect SIFT features ( scale invariant )
@@ -98,7 +99,7 @@ public class MserSiftFeatureOperations {
 		    	
 		    	
 		    //	System.out.println("fetching features for "+child.getAbsolutePath());
-		    	List<Feature> temp_features = mserSift.getSiftMserFeatures(img);
+		    	List<Feature> temp_features = MserSiftParallel.getSiftMserFeatures(img);
 		    	writeToFile(temp_features);
 		    	feedToKmeans(child.getName(),temp_features);
 		    }
@@ -137,7 +138,8 @@ public class MserSiftFeatureOperations {
 	  			output.write(" " +str);
 			}
 	  		output.newLine();
-        }	    
+        }	
+		output.close();
 	}
 
 	/***
