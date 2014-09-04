@@ -27,15 +27,23 @@ public class MserSiftFeatureOperations {
 	
 	//deafult dir_path for the testing set on local system
 	//public static String dir_path = "/home/hduser/Dropbox/Disambiguation Project/Tank use case data/ImagNet";
-	public static String dir_path = "/Users/Ishan/Documents/Pictures/ImagePro/TrainSet/";
+	//public static String dir_path = "/Users/Ishan/Documents/Pictures/ImagePro/TrainSet/";
+	public static String dir_path = "/home/hduser/Documents/OpenCV-testing Images/BaseImages/";
 	//deafult path where all the descriptors are written.
-	public static String filePath = "/Users/Ishan/Documents/mserSiftFeatures.txt";
+	
+	//public static String filePath = "/Users/Ishan/Documents/mserSiftFeatures.txt";
+	public static String filePath = "/home/hduser/Documents/mserSiftFeatures.txt";
 	//handle for the mserSiftParallel class , that does all the operations
 	public static MserSiftParallel mserSift = new MserSiftParallel();
 	//handle for Clustering Class kmeansClustering
 	public static KmeansClustering kMeansClustering = new KmeansClustering();
 	
 	
+	public MserSiftFeatureOperations(String dir_path){
+				if ( dir_path !=""){
+						setDirPath(dir_path);
+				}
+	}
 
 	
 	/**
@@ -53,6 +61,7 @@ public class MserSiftFeatureOperations {
 		getAllSiftMserFeatures();
 			
 	};
+
 	
 	/**
 	 * set the data path through command line if entered
@@ -89,7 +98,14 @@ public class MserSiftFeatureOperations {
 		  if (directoryListing != null) {
 		    for (File child : directoryListing) {
 		      // Do something with child
-		    	 BufferedImage img = ImageIO.read(child);
+		    	
+		    		if (child.isFile()){
+		    			System.out.println("File:"+child.getAbsolutePath());
+		    		}else{
+		    				System.out.println("Not a file!");
+		    		}
+		    		BufferedImage img = ImageIO.read(child);
+		    	
 		    	
 		    	//in case we are dealing with thumbnails 
 		    	//scaling will not and should not affect SIFT features ( scale invariant )
@@ -102,6 +118,7 @@ public class MserSiftFeatureOperations {
 		    	List<Feature> temp_features = MserSiftParallel.getSiftMserFeatures(img);
 		    	writeToFile(temp_features);
 		    	feedToKmeans(child.getName(),temp_features);
+		    	img.flush();
 		    }
 		  } else {
 		    // Handle the case where dir is not really a directory.

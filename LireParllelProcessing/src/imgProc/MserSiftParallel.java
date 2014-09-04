@@ -119,7 +119,7 @@ public class MserSiftParallel {
 							// TODO: handle exception
 							e.printStackTrace();
 						}
-					
+					img.flush();
 					return sift_filtered_features;
 							
 	}

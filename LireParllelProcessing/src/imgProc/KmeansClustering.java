@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 
+import edu.berkeley.compbio.jlibsvm.legacyexec.svm_train;
+
 
 
 
@@ -27,7 +29,7 @@ import net.semanticmetadata.lire.clustering.KMeans;
 
 public class KmeansClustering {
 	
-	public static  int NUM_CLUSTERS = 100;
+	public static  int NUM_CLUSTERS = 10;
 	private  double threshold = 5;
 	private  KMeans kmeans = new KMeans();
 
@@ -85,6 +87,11 @@ public class KmeansClustering {
 	
 	Cluster[] clusters = kmeans.getClusters();
 		
+	//these cluster are visual words
+	for (Cluster cluster : clusters) {
+		System.out.println(cluster.toString());
+	}
+	
 	
 	}
 	
