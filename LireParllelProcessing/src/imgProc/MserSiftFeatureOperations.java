@@ -58,7 +58,7 @@ public class MserSiftFeatureOperations {
 		if ( args.length > 0){
 					setOutputFilePath(args[1]);
 		}
-		getAllSiftMserFeatures();
+		getAllSiftMserFeatures("","");
 			
 	};
 
@@ -90,9 +90,14 @@ public class MserSiftFeatureOperations {
 	 * get the MSER-SIFT features and write them to a file
 	 * @throws IOException 
 	 */
-	public static void getAllSiftMserFeatures() throws IOException {
-		
-		  File dir = new File(dir_path);
+	public static void getAllSiftMserFeatures(String file_path,String dest_path) throws IOException {
+		if (file_path == ""){
+				file_path = dir_path;
+		}
+		if(dest_path == ""){
+					dest_path = filePath;
+		}
+		  File dir = new File(file_path);
 		  File[] directoryListing = dir.listFiles();
 		  System.out.println("directory size:"+directoryListing.length);
 		  if (directoryListing != null) {
@@ -116,7 +121,7 @@ public class MserSiftFeatureOperations {
 		    	
 		    //	System.out.println("fetching features for "+child.getAbsolutePath());
 		    	List<Feature> temp_features = MserSiftParallel.getSiftMserFeatures(img);
-		    	writeToFile(temp_features);
+		    	writeToFile(temp_features,dest_path);
 		    	feedToKmeans(child.getName(),temp_features);
 		    	img.flush();
 		    }
@@ -139,12 +144,12 @@ public class MserSiftFeatureOperations {
 	 * @throws IOException 
 	 * 
 	 */
-	public static void writeToFile(List<Feature> sift_features) throws IOException{
+	public static void writeToFile(List<Feature> sift_features,String destination_path) throws IOException{
 	
-		if ( filePath == null ){
-					System.out.println("set the output file path");
+		if ( destination_path == "" ){
+			destination_path = filePath;
 		}
-		File file = new File(filePath);
+		File file = new File(destination_path);
         BufferedWriter output = new BufferedWriter(new FileWriter(file));
 
 
