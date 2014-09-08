@@ -74,7 +74,7 @@ public class KmeansClustering {
 	public void computeClusters() throws IOException{
 			//from the features compue the clusters 
 		setNumberOfClusters(NUM_CLUSTERS);
-		System.out.println("Computing Clusters");
+		System.out.println("Creating visual vocabularly with traiing images");
 		double old_stress = 0;	double current_error = 0.0;
 		kmeans.init();
 		do{

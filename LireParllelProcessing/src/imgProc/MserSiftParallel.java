@@ -99,6 +99,8 @@ public class MserSiftParallel {
 	 * @throws IOException 
 	 */
 	public static List<Feature> getSiftMserFeatures(BufferedImage img) throws IOException{
+			
+					
 						//obtain SIFT features and MSER blobs
 						setMserRegions(img);
 						setMserRegions(mser_blobs);

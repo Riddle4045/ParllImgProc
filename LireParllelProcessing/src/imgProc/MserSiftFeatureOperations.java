@@ -21,6 +21,17 @@ import net.semanticmetadata.lire.imageanalysis.sift.Feature;
 
 import org.imgscalr.Scalr;
 
+/**
+ * Entry class for the following
+ * MSER-SIFT feature extraction 
+ * Clustering the base images to create visual vocabulary.
+ * Quantize traiing images to visual vocabulary.
+ * Train a SVM classifier with training image.
+ * Test the image labels on the images.
+ * Cross validate to get PR numbers. 
+ * @author hduser
+ *
+ */
 public class MserSiftFeatureOperations {
 	
 	
@@ -104,11 +115,7 @@ public class MserSiftFeatureOperations {
 		    for (File child : directoryListing) {
 		      // Do something with child
 		    	
-		    		if (child.isFile()){
-		    			System.out.println("File:"+child.getAbsolutePath());
-		    		}else{
-		    				System.out.println("Not a file!");
-		    		}
+		    		if ( child.isFile()){
 		    		BufferedImage img = ImageIO.read(child);
 		    	
 		    	
@@ -119,13 +126,28 @@ public class MserSiftFeatureOperations {
 		    	}
 		    	
 		    	
-		    //	System.out.println("fetching features for "+child.getAbsolutePath());
+		    	System.out.println("fetching features for "+child.getAbsolutePath());
 		    	List<Feature> temp_features = MserSiftParallel.getSiftMserFeatures(img);
 		    	writeToFile(temp_features,dest_path);
 		    	feedToKmeans(child.getName(),temp_features);
 		    	img.flush();
+		    		}else {
+		    				File[] newfiles = child.listFiles();
+		    				for (File file : newfiles) { 			    	  		    	
+		    		    		BufferedImage img = ImageIO.read(file);   		    	
+		    		    	//in case we are dealing with thumbnails 
+		    		    	//scaling will not and should not affect SIFT features ( scale invariant )
+		    		    	if ( img.getTileHeight() < 64 || img.getTileWidth() < 64  ){
+		    		    				img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 100, null);
+		    		    	}		    		    	
+		    		    	System.out.println("fetching features for "+file.getAbsolutePath());
+		    		    	List<Feature> temp_features = MserSiftParallel.getSiftMserFeatures(img);
+		    		    	writeToFile(temp_features,dest_path);
+		    		    	feedToKmeans(child.getName(),temp_features);
+		    		    	img.flush();
+		    		}
 		    }
-		  } else {
+		  }} else {
 		    // Handle the case where dir is not really a directory.
 		    // Checking dir.isDirectory() above would not be sufficient
 		    // to avoid race conditions with another process that deletes

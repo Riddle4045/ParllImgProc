@@ -1,12 +1,18 @@
 package imgProc;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 
 import edu.berkeley.compbio.jlibsvm.SVM;
 import edu.berkeley.compbio.jlibsvm.legacyexec.svm_train;
 
 public class MultiClassSVMclassification {
+	
+				public MultiClassSVMclassification(){
+						
+				}
 
 				//Things to code here
 	
@@ -33,27 +39,31 @@ public class MultiClassSVMclassification {
 				
 				private static MserSiftFeatureOperations mserFileOperations = new MserSiftFeatureOperations(train_img);
 				
+				public static void main(String[] args) throws IOException {
+										writeTrainingImageFeatures(train_img);
+										quantizeFeatures(destination_path);
+				}
 				
 				
 				public static void writeTrainingImageFeatures(String train_images) throws IOException{	
-									
-						File dir = new File(train_img);
-						File[] files =	dir.listFiles();
-						for (File file : files) {
-								if(!file.isFile()){
-										File[] newFile  = file.listFiles();
-										for (File newfile : newFile) {
-													mserFileOperations.getAllSiftMserFeatures(train_img,destination_path);
-										}
-								}
-						}
+						mserFileOperations.getAllSiftMserFeatures(train_img,destination_path);
 					}
 				
 				public static void 	quantizeFeatures(String source_file_path) throws IOException {
 						//read the file line by line.
-						//caculate the euclidean distance from all the points 
+						//Calculate the euclidean distance from all the points 
 						File source_file = new File(source_file_path);
-						
+						BufferedReader br = new BufferedReader(new FileReader(source_file));
+						String line;
+						while ((line = br.readLine()) != null) {
+										//now we have a the vector in this line 
+										//we need to extract all the numbers.
+										//get the euclidean distance from which ever words they are closest to
+										//and incremenet the vector with those words as index by 1 to reate the histrogram.
+										//once this histrogram is done we will feed it to mSVM to train and test images.
+										
+						}
+						br.close();
 				}
 				
 
