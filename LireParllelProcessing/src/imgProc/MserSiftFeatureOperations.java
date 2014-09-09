@@ -36,10 +36,10 @@ public class MserSiftFeatureOperations {
 	
 	
 	
-	//deafult dir_path for the testing set on local system
-	//public static String dir_path = "/home/hduser/Dropbox/Disambiguation Project/Tank use case data/ImagNet";
-	//public static String dir_path = "/Users/Ishan/Documents/Pictures/ImagePro/TrainSet/";
-	public static String dir_path = "/home/hduser/Documents/OpenCV-testing Images/BaseImages/";
+	//deafult base_image_path for the testing set on local system
+	//public static String base_image_path = "/home/hduser/Dropbox/Disambiguation Project/Tank use case data/ImagNet";
+	//public static String base_image_path = "/Users/Ishan/Documents/Pictures/ImagePro/TrainSet/";
+	public static String base_image_path = "/home/hduser/Documents/OpenCV-testing Images/BaseImages/";
 	//deafult path where all the descriptors are written.
 	
 	//public static String filePath = "/Users/Ishan/Documents/mserSiftFeatures.txt";
@@ -50,9 +50,9 @@ public class MserSiftFeatureOperations {
 	public static KmeansClustering kMeansClustering = new KmeansClustering();
 	
 	
-	public MserSiftFeatureOperations(String dir_path){
-				if ( dir_path !=""){
-						setDirPath(dir_path);
+	public MserSiftFeatureOperations(String base_image_path){
+				if ( base_image_path !=""){
+						setDirPath(base_image_path);
 				}
 	}
 
@@ -65,12 +65,9 @@ public class MserSiftFeatureOperations {
 		// TODO Auto-generated method stub
 		if ( args.length > 0 ){
 			setDirPath(args[0]);
+			setOutputFilePath(args[1]);
 		}
-		if ( args.length > 0){
-					setOutputFilePath(args[1]);
-		}
-		getAllSiftMserFeatures("","");
-			
+		getAllSiftMserFeatures(base_image_path,"",true);
 	};
 
 	
@@ -81,7 +78,7 @@ public class MserSiftFeatureOperations {
 	public static void setDirPath(String path) {
 					
 					if ( path != null ) {
-									dir_path = path;
+									base_image_path = path;
 					}
 	
 	}
@@ -101,9 +98,9 @@ public class MserSiftFeatureOperations {
 	 * get the MSER-SIFT features and write them to a file
 	 * @throws IOException 
 	 */
-	public static void getAllSiftMserFeatures(String file_path,String dest_path) throws IOException {
+	public static void getAllSiftMserFeatures(String file_path,String dest_path, Boolean feedToKmeans) throws IOException {
 		if (file_path == ""){
-				file_path = dir_path;
+				file_path = base_image_path;
 		}
 		if(dest_path == ""){
 					dest_path = filePath;
@@ -129,7 +126,9 @@ public class MserSiftFeatureOperations {
 		    	System.out.println("fetching features for "+child.getAbsolutePath());
 		    	List<Feature> temp_features = MserSiftParallel.getSiftMserFeatures(img);
 		    	writeToFile(temp_features,dest_path);
-		    	feedToKmeans(child.getName(),temp_features);
+		     	if(feedToKmeans){
+    		    	feedToKmeans(child.getName(),temp_features);
+    		    	}
 		    	img.flush();
 		    		}else {
 		    				File[] newfiles = child.listFiles();
@@ -143,7 +142,9 @@ public class MserSiftFeatureOperations {
 		    		    	System.out.println("fetching features for "+file.getAbsolutePath());
 		    		    	List<Feature> temp_features = MserSiftParallel.getSiftMserFeatures(img);
 		    		    	writeToFile(temp_features,dest_path);
+		    		    	if(feedToKmeans){
 		    		    	feedToKmeans(child.getName(),temp_features);
+		    		    	}
 		    		    	img.flush();
 		    		}
 		    }
@@ -155,10 +156,36 @@ public class MserSiftFeatureOperations {
 			  System.out.println("Some wrong entry in directory check");
 		  }
 		  
+		  	if(feedToKmeans){
 		  //when all the features are extracted and dealt with 
 		  //perform kmeans clustering on them
 		  kMeansClustering.computeClusters();
+		  	}
 	
+	}
+	
+	/**
+	 * get MSER-SIFT features for a image and return the list
+	 * @useCase: while quantizing the training images.
+	 * @param img : target image.
+	 * @param Identifier : image_name;
+	 * @param feedToKmeans : true if the features needed to be clustered through Kmeans.
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<Feature> getAllSiftMserFeaturesForImage(BufferedImage img,String Identifier,Boolean feedToKmeans) throws IOException{
+    	//in case we are dealing with thumbnails 
+    	//scaling will not and should not affect SIFT features ( scale invariant )
+    	if ( img.getTileHeight() < 64 || img.getTileWidth() < 64  ){
+    				img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 100, null);
+    	}
+    	
+    	List<Feature> temp_features = MserSiftParallel.getSiftMserFeatures(img);
+     	if(feedToKmeans){
+	    	feedToKmeans(Identifier,temp_features);
+	    	}
+    	img.flush();
+    	return temp_features;
 	}
 	
 	/**
