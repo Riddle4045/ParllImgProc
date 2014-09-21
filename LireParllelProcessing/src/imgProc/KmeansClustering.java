@@ -1,7 +1,9 @@
 package imgProc;
 
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +34,8 @@ public class KmeansClustering {
 	public static  int NUM_CLUSTERS = 10;
 	private  double threshold = 5;
 	private  KMeans kmeans = new KMeans();
-
+	private static Cluster[] cluster = new Cluster[NUM_CLUSTERS];
+	private static String  clusterFilePath = "/home/hduser/Documents/OpenCV-testing Images/ClusterFile.txt";
 	
 	
 	public void readFeaturesFromFiles(File file ){
@@ -85,14 +88,19 @@ public class KmeansClustering {
 		}while ( Math.abs(current_error) > threshold);
 		System.out.println("finsihed");
 	
-	Cluster[] clusters = kmeans.getClusters();
-		
-	//these cluster are visual words
-	for (Cluster cluster : clusters) {
-		System.out.println(cluster.toString());
+	cluster = kmeans.getClusters();
 	}
 	
-	
+	public static void readClusterInformation(String cluster_file_path) throws IOException {
+							File clusterFile = new File(cluster_file_path);
+							if ( cluster_file_path == " "){
+											cluster_file_path = clusterFilePath;
+							}
+							BufferedReader buf = new BufferedReader(new FileReader(clusterFile));
+							String line;
+							while ( (line = buf.readLine()) != null){
+												
+							}
 	}
 	
 }

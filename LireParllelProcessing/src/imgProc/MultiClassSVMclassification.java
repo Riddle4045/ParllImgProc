@@ -74,15 +74,21 @@ public class MultiClassSVMclassification {
 						img.flush();
 					}
 				}}}
+		
 	}
 
 	public static void 	quantizeFeatures(List<Feature> features) throws IOException {
-			
+				ArrayList<double[]>  descriptors = new ArrayList<double[]>();
+				for (Feature feature : features) {
+							double[] des = feature.descriptor;
+							descriptors.add(des);
+		}
 
 	}
 
-	public static void getClosestCenter(ArrayList<Double> feature_vector){
-
+	public static void getClosestCenter(List<Feature> feature_vector){
+							//calcuate the eucliedian distance from all the visual words and assign the value of nearest word.
+							//where to read the clusters from ? images or the cluster[]
 	}
 
 
