@@ -12,9 +12,13 @@ import javax.imageio.ImageIO;
 
 import org.imgscalr.Scalr;
 
+import net.semanticmetadata.lire.clustering.Cluster;
+import net.semanticmetadata.lire.clustering.KMeans;
 import net.semanticmetadata.lire.imageanalysis.sift.Feature;
 
 import edu.berkeley.compbio.jlibsvm.SVM;
+import edu.berkeley.compbio.jlibsvm.SvmProblem;
+import edu.berkeley.compbio.jlibsvm.legacyexec.svm_predict;
 import edu.berkeley.compbio.jlibsvm.legacyexec.svm_train;
 
 public class MultiClassSVMclassification {
@@ -25,12 +29,13 @@ public class MultiClassSVMclassification {
 
 	public static String train_img = "/home/hduser/Documents/OpenCV-testing Images/train";
 	public static String destination_path = "/home/hduser/Documents/OpenCV-testing Images/TrainingImageFeatures.txt";
-	public static ArrayList<double[]> quantized_images = new ArrayList<>();
+	public static ArrayList<Integer[]> quantized_images = new ArrayList<>();
+	private static MserSiftFeatureOperations mserFileOperations = new MserSiftFeatureOperations("");
+	private static KmeansClustering kmeans = new KmeansClustering();
 
-	private static MserSiftFeatureOperations mserFileOperations = new MserSiftFeatureOperations(train_img);
-
+	
 	public static void main(String[] args) throws IOException {
-
+		mserFileOperations._init_("");
 		_init_(train_img);
 
 	}
@@ -43,6 +48,7 @@ public class MultiClassSVMclassification {
 		File[] directoryListing = dir.listFiles();
 		System.out.println("directory size:"+directoryListing.length);
 		if (directoryListing != null) {
+			System.out.println("Quantizing training images for SVM-trainer");
 			for (File child : directoryListing) {
 				// Do something with child
 
@@ -53,7 +59,7 @@ public class MultiClassSVMclassification {
 					if ( img.getTileHeight() < 64 || img.getTileWidth() < 64  ){
 						img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 100, null);
 					}
-					System.out.println("fetching training features"+child.getAbsolutePath());
+					//System.out.println("fetching training features"+child.getAbsolutePath());
 					List<Feature> temp_features = MserSiftParallel.getSiftMserFeatures(img);
 					quantizeFeatures(temp_features);
 					temp_features.clear();
@@ -67,7 +73,7 @@ public class MultiClassSVMclassification {
 						if ( img.getTileHeight() < 64 || img.getTileWidth() < 64  ){
 							img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 100, null);
 						}		    		    	
-						System.out.println("fetching features for "+file.getAbsolutePath());
+					//	System.out.println("fetching features for "+file.getAbsolutePath());
 						List<Feature> temp_features = MserSiftParallel.getSiftMserFeatures(img);
 						quantizeFeatures(temp_features);
 						temp_features.clear();
@@ -83,16 +89,44 @@ public class MultiClassSVMclassification {
 							double[] des = feature.descriptor;
 							descriptors.add(des);
 		}
+				assignVisualWord(descriptors);
 
 	}
 
-	public static void getClosestCenter(List<Feature> feature_vector){
-							//calcuate the eucliedian distance from all the visual words and assign the value of nearest word.
-							//where to read the clusters from ? images or the cluster[]
+	public static void assignVisualWord(ArrayList<double[]> feature_vector){
+					Integer[] histogram  = new Integer[KmeansClustering.NUM_CLUSTERS];
+					Cluster[] clusters = kmeans.getClusters();
+					int word_index =0;
+					double min_distance =Double.MAX_VALUE; double temp;
+					for (double[] feature : feature_vector) {
+							
+					 for(int i =0 ; i < KmeansClustering.NUM_CLUSTERS;i++){
+						 	 temp = clusters[i].getDistance(feature);
+						 	 if ( temp < min_distance){
+						 		 		word_index = i;
+						 		 		min_distance = temp;
+						 	 }
+					 }
+					 histogram[word_index]++;
+					 word_index= 0;
+					 min_distance = Double.MAX_VALUE;
+					 quantized_images.add(histogram);
+					}	
+					printUtility(quantized_images);
 	}
 
-
-
+	public static void printUtility(ArrayList<Integer[]> hist){
+		
+		//iamges converted to visual words
+		System.out.println("ENCODED  TRAINING IMAGES");
+					for (Integer[] image : hist) {
+								System.out.println(image.toString());
+						}
+	}
+	
+	public static void trainSVM(){
+			
+	}
 
 
 }

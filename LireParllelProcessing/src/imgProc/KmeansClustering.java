@@ -2,8 +2,12 @@ package imgProc;
 
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -34,7 +38,7 @@ public class KmeansClustering {
 	public static  int NUM_CLUSTERS = 10;
 	private  double threshold = 5;
 	private  KMeans kmeans = new KMeans();
-	private static Cluster[] cluster = new Cluster[NUM_CLUSTERS];
+	private static Cluster[] clusters = new Cluster[NUM_CLUSTERS];
 	private static String  clusterFilePath = "/home/hduser/Documents/OpenCV-testing Images/ClusterFile.txt";
 	
 	
@@ -51,6 +55,10 @@ public class KmeansClustering {
 		
 	}
 	
+	public Cluster[] getClusters(){
+		return clusters;
+			
+	}
 	/**
 	 * go through the file containing features
 	 * and add all the features to be clustered
@@ -77,7 +85,7 @@ public class KmeansClustering {
 	public void computeClusters() throws IOException{
 			//from the features compue the clusters 
 		setNumberOfClusters(NUM_CLUSTERS);
-		System.out.println("Creating visual vocabularly with traiing images");
+		System.out.println("Creating visual vocabulary with base images");
 		double old_stress = 0;	double current_error = 0.0;
 		kmeans.init();
 		do{
@@ -86,11 +94,22 @@ public class KmeansClustering {
 			old_stress = temp;
 			System.out.println(current_error);
 		}while ( Math.abs(current_error) > threshold);
-		System.out.println("finsihed");
+		System.out.println("Conveged to "+current_error + " < than "+threshold);
+		System.out.println("finsihed creating vocabulary");
 	
-	cluster = kmeans.getClusters();
+	clusters = kmeans.getClusters();
+	writeClustersToFile(clusterFilePath);
+	
 	}
 	
+	public void writeClustersToFile(String FilePath) throws IOException{
+			File clusterFile = new File(FilePath);
+			BufferedWriter fs = new BufferedWriter(new FileWriter(clusterFile));
+			for (Cluster cluster : clusters) {
+				fs.write(cluster.toString());
+			}
+			
+	}
 	public static void readClusterInformation(String cluster_file_path) throws IOException {
 							File clusterFile = new File(cluster_file_path);
 							if ( cluster_file_path == " "){
@@ -99,7 +118,7 @@ public class KmeansClustering {
 							BufferedReader buf = new BufferedReader(new FileReader(clusterFile));
 							String line;
 							while ( (line = buf.readLine()) != null){
-												
+											//store the information in CLusters[]?
 							}
 	}
 	

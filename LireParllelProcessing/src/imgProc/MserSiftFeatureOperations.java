@@ -39,11 +39,11 @@ public class MserSiftFeatureOperations {
 	//deafult base_image_path for the testing set on local system
 	//public static String base_image_path = "/home/hduser/Dropbox/Disambiguation Project/Tank use case data/ImagNet";
 	//public static String base_image_path = "/Users/Ishan/Documents/Pictures/ImagePro/TrainSet/";
-	public static String base_image_path = "/home/hduser/Documents/OpenCV-testing Images/BaseImages/";
+	public static String base_image_path = "/home/hduser/Documents/OpenCV-testing Images/Mini-BaseImages";
 	//deafult path where all the descriptors are written.
 	
 	//public static String filePath = "/Users/Ishan/Documents/mserSiftFeatures.txt";
-	public static String filePath = "/home/hduser/Documents/mserSiftFeatures.txt";
+	public static String filePath = "/home/hduser/Documents/OpenCV-testing Images/BaseImageMserSiftFeatures.txt";
 	//handle for the mserSiftParallel class , that does all the operations
 	public static MserSiftParallel mserSift = new MserSiftParallel();
 	//handle for Clustering Class kmeansClustering
@@ -70,7 +70,13 @@ public class MserSiftFeatureOperations {
 		getAllSiftMserFeatures(base_image_path,"",true);
 	};
 
-	
+	public static void _init_(String baseImages_path) throws IOException {
+		if (baseImages_path == ""){
+		getAllSiftMserFeatures(base_image_path,"",true);
+		}else {
+			getAllSiftMserFeatures(baseImages_path, "", true);
+		}
+	}
 	/**
 	 * set the data path through command line if entered
 	 * @param path
@@ -109,6 +115,7 @@ public class MserSiftFeatureOperations {
 		  File[] directoryListing = dir.listFiles();
 		  System.out.println("directory size:"+directoryListing.length);
 		  if (directoryListing != null) {
+			  System.out.println("Extracting MSER features for Visual Vocab");
 		    for (File child : directoryListing) {
 		      // Do something with child
 		    	
