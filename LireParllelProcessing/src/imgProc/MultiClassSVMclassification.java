@@ -35,10 +35,7 @@ import net.semanticmetadata.lire.clustering.Cluster;
 import net.semanticmetadata.lire.clustering.KMeans;
 import net.semanticmetadata.lire.imageanalysis.sift.Feature;
 
-import edu.berkeley.compbio.jlibsvm.SVM;
-import edu.berkeley.compbio.jlibsvm.SvmProblem;
-import edu.berkeley.compbio.jlibsvm.legacyexec.svm_predict;
-import edu.berkeley.compbio.jlibsvm.legacyexec.svm_train;
+
 
 public class MultiClassSVMclassification {
 
@@ -49,6 +46,7 @@ public class MultiClassSVMclassification {
 	public static String train_img = "/home/hduser/Documents/OpenCV-testing Images/train";
 	public static String test_img = "/home/hduser/Documents/OpenCV-testing Images/test";
 	public static String destination_path = "/home/hduser/Documents/OpenCV-testing Images/TrainingImageFeatures.txt";
+	public static String destination_path_test = "/home/hduser/Documents/OpenCV-testing Images/TestingImageFeatures.txt";
 
 	public static ArrayList<Integer[]> quantized_train_images = new ArrayList<>();
 	public static ArrayList<Integer[]> quantized_test_images = new ArrayList<>();
@@ -63,14 +61,14 @@ public class MultiClassSVMclassification {
 	
 	public static void main(String[] args) throws IOException {
 		mserFileOperations._init_("");
-		_init_(train_img,true);
-		_init_(test_img,false);
+		_init_(train_img,true,destination_path);
+		_init_(test_img,false,destination_path_test);
 
 	}
 	
 	
 
-	public static void _init_(String file_path,Boolean train) throws IOException{	
+	public static void _init_(String file_path,Boolean train,String destination_filepath) throws IOException{	
 		//handle a image at a time , get the image , extract the features , quantize the features.
 		int label = 0;
 		File dir = new File(file_path);
@@ -89,11 +87,16 @@ public class MultiClassSVMclassification {
 					BufferedImage img = ImageIO.read(child);
 					//in case we are dealing with thumbnails 
 					//scaling will not and should not affect SIFT features ( scale invariant )
-					if ( img.getTileHeight() < 64 || img.getTileWidth() < 64  ){
-						img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 100, null);
-					}
-					//System.out.println("fetching training features"+child.getAbsolutePath());
+			    	if ( img.getTileHeight() < 64 || img.getTileWidth() < 64  ){
+	    				img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 400	, 400, null);
+	    	}
+	    	
+	    	if (img.getTileHeight() >  800 || img.getTileWidth() > 800){
+	    					img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 400	, 400, null);
+	    	}
+					System.out.println("fetching training features"+child.getAbsolutePath());
 					List<Feature> temp_features = MserSiftParallel.getSiftMserFeatures(img);
+					writeToFile(temp_features, destination_filepath);
 					quantizeFeatures(temp_features,label,train);
 					temp_features.clear();
 					img.flush();
@@ -104,11 +107,16 @@ public class MultiClassSVMclassification {
 						BufferedImage img = ImageIO.read(file);   		    	
 						//in case we are dealing with thumbnails 
 						//scaling will not and should not affect SIFT features ( scale invariant )
-						if ( img.getTileHeight() < 64 || img.getTileWidth() < 64  ){
-							img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 100, null);
-						}		    		    	
-						//System.out.println("fetching features for "+file.getAbsolutePath());
+				    	if ( img.getTileHeight() < 64 || img.getTileWidth() < 64  ){
+		    				img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 400	, 400, null);
+		    	}
+		    	
+		    	if (img.getTileHeight() >  800 || img.getTileWidth() > 800){
+		    					img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 400	, 400, null);
+		    	}	    		    	
+						System.out.println("fetching features for "+file.getAbsolutePath());
 						List<Feature> temp_features = MserSiftParallel.getSiftMserFeatures(img);
+						writeToFile(temp_features, destination_filepath);
 						quantizeFeatures(temp_features,label,train);
 						temp_features.clear();
 						img.flush();
@@ -208,6 +216,24 @@ public class MultiClassSVMclassification {
 					buf.newLine();
 					buf.close();			
 					buf.close();				
+	}
+	
+	public static void writeToFile(List<Feature> sift_features,String destination_path) throws IOException{
+		
+
+		File file = new File(destination_path);
+        BufferedWriter output = new BufferedWriter(new FileWriter(file));
+
+
+		for (Feature feature : sift_features) {
+	  		double[] descriptor_values = feature.descriptor;
+	  		for (double d : descriptor_values) {
+	  			String str = Double.toString(d);
+	  			output.write(" " +str);
+			}
+	  		output.newLine();
+        }	
+		output.close();
 	}
 
 }

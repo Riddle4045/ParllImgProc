@@ -113,9 +113,9 @@ public class MserSiftParallel {
 										java.awt.Point temp = new java.awt.Point();
 										temp.x = Math.round(keypoint.location[0]);
 										temp.y = Math.round(keypoint.location[1]);
-										if ( cord_points.contains(temp)){
+										//if ( cord_points.contains(temp)){
 													sift_filtered_features.add(keypoint);
-										}
+								//		}
 							}
 						}catch (Exception e) {
 							// TODO: handle exception

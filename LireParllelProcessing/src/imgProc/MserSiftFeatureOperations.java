@@ -39,7 +39,7 @@ public class MserSiftFeatureOperations {
 	//deafult base_image_path for the testing set on local system
 	//public static String base_image_path = "/home/hduser/Dropbox/Disambiguation Project/Tank use case data/ImagNet";
 	//public static String base_image_path = "/Users/Ishan/Documents/Pictures/ImagePro/TrainSet/";
-	public static String base_image_path = "/home/hduser/Documents/OpenCV-testing Images/Mini-BaseImages";
+	public static String base_image_path = "/home/hduser/Documents/OpenCV-testing Images/BaseImages";
 	//deafult path where all the descriptors are written.
 	
 	//public static String filePath = "/Users/Ishan/Documents/mserSiftFeatures.txt";
@@ -114,6 +114,7 @@ public class MserSiftFeatureOperations {
 		  File dir = new File(file_path);
 		  File[] directoryListing = dir.listFiles();
 		  System.out.println("directory size:"+directoryListing.length);
+		  int count  = 1;
 		  if (directoryListing != null) {
 			  System.out.println("Extracting MSER features for Visual Vocab");
 		    for (File child : directoryListing) {
@@ -126,11 +127,15 @@ public class MserSiftFeatureOperations {
 		    	//in case we are dealing with thumbnails 
 		    	//scaling will not and should not affect SIFT features ( scale invariant )
 		    	if ( img.getTileHeight() < 64 || img.getTileWidth() < 64  ){
-		    				img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 100, null);
+		    				img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 400	, 400, null);
 		    	}
 		    	
+		    	if (img.getTileHeight() >  800 || img.getTileWidth() > 800){
+		    					img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 400	, 400, null);
+		    	}
 		    	
-		    	System.out.println("fetching features for "+child.getAbsolutePath());
+		    	System.out.println("fetching features for"+count+" image "+child.getAbsolutePath());
+		    	count++;
 		    	List<Feature> temp_features = MserSiftParallel.getSiftMserFeatures(img);
 		    	writeToFile(temp_features,dest_path);
 		     	if(feedToKmeans){
@@ -139,14 +144,20 @@ public class MserSiftFeatureOperations {
 		    	img.flush();
 		    		}else {
 		    				File[] newfiles = child.listFiles();
+		    				System.out.println("Directory Size"+newfiles.length);
 		    				for (File file : newfiles) { 			    	  		    	
 		    		    		BufferedImage img = ImageIO.read(file);   		    	
 		    		    	//in case we are dealing with thumbnails 
 		    		    	//scaling will not and should not affect SIFT features ( scale invariant )
-		    		    	if ( img.getTileHeight() < 64 || img.getTileWidth() < 64  ){
-		    		    				img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 100, null);
-		    		    	}		    		    	
-		    		    	System.out.println("fetching features for "+file.getAbsolutePath());
+		    			    	if ( img.getTileHeight() < 64 || img.getTileWidth() < 64  ){
+				    				img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 400	, 400, null);
+				    	}
+				    	
+				    	if (img.getTileHeight() >  800 || img.getTileWidth() > 800){
+				    					img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 400	, 400, null);
+				    	}	    		    	
+		    		    	System.out.println("fetching features for"+count+" image "+file.getAbsolutePath());
+		    		    	count++;
 		    		    	List<Feature> temp_features = MserSiftParallel.getSiftMserFeatures(img);
 		    		    	writeToFile(temp_features,dest_path);
 		    		    	if(feedToKmeans){
@@ -184,9 +195,12 @@ public class MserSiftFeatureOperations {
     	//in case we are dealing with thumbnails 
     	//scaling will not and should not affect SIFT features ( scale invariant )
     	if ( img.getTileHeight() < 64 || img.getTileWidth() < 64  ){
-    				img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 100, null);
-    	}
-    	
+			img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 400	, 400, null);
+}
+
+if (img.getTileHeight() >  800 || img.getTileWidth() > 800){
+				img = Scalr.resize(img, Scalr.Method.AUTOMATIC, 400	, 400, null);
+}
     	List<Feature> temp_features = MserSiftParallel.getSiftMserFeatures(img);
      	if(feedToKmeans){
 	    	feedToKmeans(Identifier,temp_features);
