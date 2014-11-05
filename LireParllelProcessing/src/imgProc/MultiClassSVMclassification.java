@@ -48,8 +48,8 @@ public class MultiClassSVMclassification {
 	public static String destination_path = "/home/hduser/Documents/OpenCV-testing Images/TrainingImageFeatures.txt";
 	public static String destination_path_test = "/home/hduser/Documents/OpenCV-testing Images/TestingImageFeatures.txt";
 
-	public static ArrayList<Integer[]> quantized_train_images = new ArrayList<>();
-	public static ArrayList<Integer[]> quantized_test_images = new ArrayList<>();
+	public static ArrayList<Integer[]> quantized_train_images = new ArrayList<Integer[]>();
+	public static ArrayList<Integer[]> quantized_test_images = new ArrayList<Integer[]>();
 	private static MserSiftFeatureOperations mserFileOperations = new MserSiftFeatureOperations("");
 	private static KmeansClustering kmeans = new KmeansClustering();
 	private static String training_data_file = "/home/hduser/Documents/OpenCV-testing Images/trainingData.txt";

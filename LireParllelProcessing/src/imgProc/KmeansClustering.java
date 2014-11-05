@@ -83,7 +83,7 @@ public class KmeansClustering {
 	 * @throws IOException 
 	 */
 	public void computeClusters() throws IOException{
-			//from the features compue the clusters 
+			//from the features compute the clusters 
 		setNumberOfClusters(NUM_CLUSTERS);
 		System.out.println("Creating visual vocabulary with base images");
 		double old_stress = 0;	double current_error = 0.0;

@@ -19,7 +19,9 @@ import javax.imageio.stream.FileImageOutputStream;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.IOUtils;
@@ -39,6 +41,8 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import com.sun.corba.se.impl.ior.ByteBuffer;
 import com.sun.corba.se.spi.ior.MakeImmutable;
+import com.sun.org.apache.bcel.internal.generic.NEW;
+
 import org.apache.commons.*;
 
 
@@ -52,23 +56,29 @@ public class MasterClass {
 		Configuration conf = new Configuration();
 		conf.set("fs.default.name","hdfs://localhost:54310");
 		FileSystem fs = FileSystem.get(conf);
-		
-		
+		makeSequenceFileFromHdfs(conf,fs);
+	//	makeSequenceFileFromLocalFs(conf, fs);
 		org.apache.hadoop.mapreduce.Job job = new org.apache.hadoop.mapreduce.Job(conf);
 		job.setJarByClass(MasterClass.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
-				
+		
+		job.setMapperClass(ImageMapper.class);
+		job.setReducerClass(ImageReducer.class);
 
 		job.setNumReduceTasks(1);
 
-	    job.setInputFormatClass(SequenceFileAsTextInputFormat.class);
+		job.setInputFormatClass(SequenceFileAsTextInputFormat.class);
 	    job.setOutputFormatClass(TextOutputFormat.class);
 	   
-	    org.apache.hadoop.mapreduce.lib.input.FileInputFormat.setInputPaths(job, new Path(fs.getHomeDirectory(),"hdfs://localhost:54310/user/hduser/output/seq"));
+	    org.apache.hadoop.mapreduce.lib.input.FileInputFormat.setInputPaths(job, new Path(fs.getHomeDirectory(),"hdfs://localhost:54310/user/hduser/output/file.seq"));
+	   // org.apache.hadoop.mapreduce.lib.input.FileInputFormat.setInputPaths(job, new Path("home/hduser/Documents/file.seq"));
 	    org.apache.hadoop.mapreduce.lib.output.FileOutputFormat.setOutputPath(job,new Path(fs.getHomeDirectory(),"hdfs://localhost:54310/user/hduser/output1"));
-	    job.waitForCompletion(true);
-		makeSequenceFileFromHdfs(conf, fs);
+	  //  org.apache.hadoop.mapreduce.lib.output.FileOutputFormat.setOutputPath(job,new Path("/home/hduser/Documents/"));
+	    
+	  
+		//makeSequenceFileFromHdfs(conf, fs);
+		  job.waitForCompletion(true);
 	  //  makeSequenceFileFromLocalFs(conf, fs);
 	}
 	
@@ -84,26 +94,26 @@ public static void makeSequenceFileFromHdfs(Configuration conf,FileSystem fs) th
 					FSDataInputStream  in = null;
 					BytesWritable value = new BytesWritable();
 					Text key = new Text();
-					//targeting a certain image in the hdfs -> input/testingImagesInput folder
-					//TODO: extend this to for a complete hdfs directory.
-					Path inpath = new Path(fs.getHomeDirectory(),"/user/hduser/input/testingImagesInput/magdalen_000097.jpg");
-					Path seq_path = new Path(fs.getHomeDirectory(),"/user/hduser/output/seq");
-					Path outpath = new Path("output/file.seq");
-	
+
+					//the images are stored in  localHDFS/input folder.
+					Path inpath = new Path(fs.getHomeDirectory(),"/user/hduser/input");		
+					Path seq_path = new Path(fs.getHomeDirectory(),"/user/hduser/output/file.seq");
 					SequenceFile.Writer writer = null;
+					FileStatus[] files = fs.listStatus(inpath);
+					System.out.println("Number of files fetched "+files.length);		
+					
+					for (FileStatus fileStatus : files) {
+						inpath = fileStatus.getPath();
+
 					try {
 								System.out.println("reading from :"+inpath);
 								in =  fs.open(inpath);
-								
 								byte bufffer[] = new  byte[in.available()];
 								in.read(bufffer);
-								System.out.println("Writing to:"+seq_path.toString());
+						//		System.out.println("Writing to:"+seq_path.toString());
 								writer = SequenceFile.createWriter(fs,conf,seq_path,key.getClass(),value.getClass());
-								writer.append(new Text(inpath.getName()), new BytesWritable(bufffer));
-								
-								System.out.println("inside try!");
-								
-								
+								writer.append(new Text(inpath.getName()), new BytesWritable(bufffer));	
+								//writer.close();
 					}catch (Exception e) {
 			            System.out.println("Exception MESSAGES = "+e.getMessage());
 			            e.printStackTrace();
@@ -112,10 +122,10 @@ public static void makeSequenceFileFromHdfs(Configuration conf,FileSystem fs) th
 			            IOUtils.closeStream(writer);
 			      //      System.out.println("last line of the code....!!!!!!!!!!");
 			        }
-					
+					}
 					//once the writing of the sequence file is done 
 					//we need to read again and convert to buffered image and process and spit out text 
-					convertSequenceFileToImage(conf,fs,seq_path);
+				//	convertSequenceFileToImage(conf,fs,seq_path);
 }
 
 /*
@@ -153,12 +163,13 @@ public static void convertSequenceFileToImage(Configuration conf,FileSystem fs, 
 public static void  makeSequenceFileFromLocalFs(Configuration conf,FileSystem fs) throws IOException {
 			
 	
-			File dir = new File("/home/hduser/Downloads/oxbuild_images");
+			File dir = new File("/home/hduser/Documents/hadoop-tests");
 			File[] files = dir.listFiles();
 		
 			BytesWritable value = new BytesWritable();
 			Text key = new Text();
-			Path seq_path = new Path(fs.getHomeDirectory(),"/user/hduser/output/seq1");
+		//	Path seq_path = new Path("/home/hduser/Documents/file.seq");
+			Path seq_path = new Path(fs.getHomeDirectory(),"/user/hduser/output/file.seq");
 			SequenceFile.Writer writer = null;
 			for (File image : files) {
 				try {
