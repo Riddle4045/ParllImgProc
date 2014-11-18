@@ -61,14 +61,14 @@ public class MserSiftFeatureOperations {
 	 * @param args
 	 * @throws IOException 
 	 */
-	public static void main(String[] args) throws IOException {
+	/**public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 		if ( args.length > 0 ){
 			setDirPath(args[0]);
 			setOutputFilePath(args[1]);
 		}
 		getAllSiftMserFeatures(base_image_path,"",true);
-	};
+	};**/
 
 	public static void _init_(String baseImages_path) throws IOException {
 		if (baseImages_path == ""){

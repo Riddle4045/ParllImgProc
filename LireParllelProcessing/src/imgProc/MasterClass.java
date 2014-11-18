@@ -98,7 +98,7 @@ public static void makeSequenceFileFromHdfs(Configuration conf,FileSystem fs) th
 					//the images are stored in  localHDFS/input folder.
 					Path inpath = new Path(fs.getHomeDirectory(),"/user/hduser/input");		
 					Path seq_path = new Path(fs.getHomeDirectory(),"/user/hduser/output/file.seq");
-					SequenceFile.Writer writer = null;
+					SequenceFile.Writer writer = new SequenceFile.Writer(fs, conf, seq_path, key.getClass(), value.getClass());
 					FileStatus[] files = fs.listStatus(inpath);
 					System.out.println("Number of files fetched "+files.length);		
 					
@@ -111,7 +111,7 @@ public static void makeSequenceFileFromHdfs(Configuration conf,FileSystem fs) th
 								byte bufffer[] = new  byte[in.available()];
 								in.read(bufffer);
 						//		System.out.println("Writing to:"+seq_path.toString());
-								writer = SequenceFile.createWriter(fs,conf,seq_path,key.getClass(),value.getClass());
+								//writer = SequenceFile.createWriter(fs,conf,seq_path,key.getClass(),value.getClass());
 								writer.append(new Text(inpath.getName()), new BytesWritable(bufffer));	
 								//writer.close();
 					}catch (Exception e) {
@@ -119,7 +119,7 @@ public static void makeSequenceFileFromHdfs(Configuration conf,FileSystem fs) th
 			            e.printStackTrace();
 			        }
 			        finally {
-			            IOUtils.closeStream(writer);
+			         //   IOUtils.closeStream(writer);
 			      //      System.out.println("last line of the code....!!!!!!!!!!");
 			        }
 					}
@@ -168,9 +168,9 @@ public static void  makeSequenceFileFromLocalFs(Configuration conf,FileSystem fs
 		
 			BytesWritable value = new BytesWritable();
 			Text key = new Text();
-		//	Path seq_path = new Path("/home/hduser/Documents/file.seq");
-			Path seq_path = new Path(fs.getHomeDirectory(),"/user/hduser/output/file.seq");
-			SequenceFile.Writer writer = null;
+			Path seq_path = new Path("/home/hduser/Documents/file.seq");
+		//	Path seq_path = new Path(fs.getHomeDirectory(),"/user/hduser/output/file.seq");
+			SequenceFile.Writer writer = new SequenceFile.Writer(fs, conf, seq_path, key.getClass(), value.getClass());
 			for (File image : files) {
 				try {
 					
@@ -179,7 +179,7 @@ public static void  makeSequenceFileFromLocalFs(Configuration conf,FileSystem fs
 							byte bufffer[] = new  byte[in.available()];
 							in.read(bufffer);
 							System.out.println("Writing to:"+seq_path.toString());
-							writer = SequenceFile.createWriter(fs,conf,seq_path,key.getClass(),value.getClass());
+						//	writer = SequenceFile.createWriter(fs,conf,seq_path,key.getClass(),value.getClass());
 							writer.append(new Text(image.getAbsolutePath()), new BytesWritable(bufffer));					
 				}catch (Exception e) {
 		            System.out.println("Exception MESSAGES = "+e.getMessage());

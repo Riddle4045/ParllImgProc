@@ -24,12 +24,8 @@ import libsvm.svm_model;
 import libsvm.svm_parameter;
 
 
-import org.apache.commons.collections.MultiHashMap;
-import org.apache.commons.collections.map.MultiValueMap;
-import org.imgscalr.Scalr;
 
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimap;
+import org.imgscalr.Scalr;
 
 import net.semanticmetadata.lire.clustering.Cluster;
 import net.semanticmetadata.lire.clustering.KMeans;
@@ -59,13 +55,13 @@ public class MultiClassSVMclassification {
 	//private static  MultiValueMap<Integer, Integer[]> trainDataSVM ;
 
 	
-	public static void main(String[] args) throws IOException {
+/**	public static void main(String[] args) throws IOException {
 		mserFileOperations._init_("");
 		_init_(train_img,true,destination_path);
 		_init_(test_img,false,destination_path_test);
 
 	}
-	
+	**/
 	
 
 	public static void _init_(String file_path,Boolean train,String destination_filepath) throws IOException{	
