@@ -19,9 +19,6 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 
-import libsvm.svm;
-import libsvm.svm_model;
-import libsvm.svm_parameter;
 
 
 
@@ -39,8 +36,8 @@ public class MultiClassSVMclassification {
 
 	}
 
-	public static String train_img = "/home/hduser/Documents/OpenCV-testing Images/train";
-	public static String test_img = "/home/hduser/Documents/OpenCV-testing Images/test";
+	public static String train_img = "/home/hduser/Documents/OpenCV-testing Images/Caltech 256/train";
+	public static String test_img = "/home/hduser/Documents/OpenCV-testing Images/Caltech 256/train";
 	public static String destination_path = "/home/hduser/Documents/OpenCV-testing Images/TrainingImageFeatures.txt";
 	public static String destination_path_test = "/home/hduser/Documents/OpenCV-testing Images/TestingImageFeatures.txt";
 
@@ -55,13 +52,13 @@ public class MultiClassSVMclassification {
 	//private static  MultiValueMap<Integer, Integer[]> trainDataSVM ;
 
 	
-/**	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException {
 		mserFileOperations._init_("");
 		_init_(train_img,true,destination_path);
 		_init_(test_img,false,destination_path_test);
 
 	}
-	**/
+	
 	
 
 	public static void _init_(String file_path,Boolean train,String destination_filepath) throws IOException{	

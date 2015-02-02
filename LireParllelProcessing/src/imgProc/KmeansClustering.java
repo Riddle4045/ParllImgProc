@@ -35,7 +35,7 @@ import net.semanticmetadata.lire.clustering.KMeans;
 
 public class KmeansClustering {
 	
-	public static  int NUM_CLUSTERS = 30;
+	public static  int NUM_CLUSTERS = 200;
 	private  double threshold = 2;
 	private  KMeans kmeans = new KMeans();
 	private static Cluster[] clusters = new Cluster[NUM_CLUSTERS];

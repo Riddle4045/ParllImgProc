@@ -18,6 +18,7 @@ import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -55,22 +56,24 @@ public class MasterClass {
 		
 		Configuration conf = new Configuration();
 		conf.set("fs.default.name","hdfs://localhost:54310");
+		conf.set("fs.hdfs.impl","org.apache.hadoop.hdfs.DistributedFileSystem");
 		FileSystem fs = FileSystem.get(conf);
 		makeSequenceFileFromHdfs(conf,fs);
 	//	makeSequenceFileFromLocalFs(conf, fs);
 		org.apache.hadoop.mapreduce.Job job = new org.apache.hadoop.mapreduce.Job(conf);
 		job.setJarByClass(MasterClass.class);
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(Text.class);
+		job.setOutputValueClass(BytesWritable.class);
 		
 		job.setMapperClass(ImageMapper.class);
 		job.setReducerClass(ImageReducer.class);
 
 		job.setNumReduceTasks(1);
-
+	
 		job.setInputFormatClass(SequenceFileAsTextInputFormat.class);
 	    job.setOutputFormatClass(TextOutputFormat.class);
-	   
+	     
+	 //  DistributedCache.addFileToClassPath(new Path("/user/hduser/lib/lire.jar"), conf);
 	    org.apache.hadoop.mapreduce.lib.input.FileInputFormat.setInputPaths(job, new Path(fs.getHomeDirectory(),"hdfs://localhost:54310/user/hduser/output/file.seq"));
 	   // org.apache.hadoop.mapreduce.lib.input.FileInputFormat.setInputPaths(job, new Path("home/hduser/Documents/file.seq"));
 	    org.apache.hadoop.mapreduce.lib.output.FileOutputFormat.setOutputPath(job,new Path(fs.getHomeDirectory(),"hdfs://localhost:54310/user/hduser/output1"));
@@ -123,6 +126,7 @@ public static void makeSequenceFileFromHdfs(Configuration conf,FileSystem fs) th
 			      //      System.out.println("last line of the code....!!!!!!!!!!");
 			        }
 					}
+					writer.close();
 					//once the writing of the sequence file is done 
 					//we need to read again and convert to buffered image and process and spit out text 
 				//	convertSequenceFileToImage(conf,fs,seq_path);

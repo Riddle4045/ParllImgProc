@@ -39,7 +39,8 @@ public class MserSiftFeatureOperations {
 	//deafult base_image_path for the testing set on local system
 	//public static String base_image_path = "/home/hduser/Dropbox/Disambiguation Project/Tank use case data/ImagNet";
 	//public static String base_image_path = "/Users/Ishan/Documents/Pictures/ImagePro/TrainSet/";
-	public static String base_image_path = "/home/hduser/Documents/OpenCV-testing Images/BaseImages";
+	//public static String base_image_path = "/home/hduser/Documents/OpenCV-testing Images/train";
+	public static String base_image_path ="/home/hduser/Documents/OpenCV-testing Images/Caltech 256/BaseImages";
 	//deafult path where all the descriptors are written.
 	
 	//public static String filePath = "/Users/Ishan/Documents/mserSiftFeatures.txt";
@@ -61,14 +62,14 @@ public class MserSiftFeatureOperations {
 	 * @param args
 	 * @throws IOException 
 	 */
-	/**public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 		if ( args.length > 0 ){
 			setDirPath(args[0]);
 			setOutputFilePath(args[1]);
 		}
 		getAllSiftMserFeatures(base_image_path,"",true);
-	};**/
+	};
 
 	public static void _init_(String baseImages_path) throws IOException {
 		if (baseImages_path == ""){
@@ -121,6 +122,7 @@ public class MserSiftFeatureOperations {
 		      // Do something with child
 		    	
 		    		if ( child.isFile()){
+		    			System.out.println("Reading "+child.getAbsolutePath().toString());
 		    		BufferedImage img = ImageIO.read(child);
 		    	
 		    	
